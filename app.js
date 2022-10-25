@@ -8,8 +8,8 @@ app.use(morgan("dev"));
 
 app.get("/", (req, res) => {
   const posts = postBank.list();
-  const html = 
-  `<!DOCTYPE html>
+
+  const html = `<!DOCTYPE html>
   <html>
   <head>
     <title>Wizard News</title>
@@ -18,30 +18,52 @@ app.get("/", (req, res) => {
   <body>
     <div class="news-list">
       <header><img src="/logo.png"/>Wizard News</header>
-      ${posts.map(post => `
+      ${posts
+        .map(
+          (post) => `
         <div class='news-item'>
           <p>
             <span class="news-position">${post.id}. ▲</span>${post.title}
+            <a href="/posts/${post.id}">${post.title}</a>
             <small>(by ${post.name})</small>
           </p>
           <small class="news-info">
             ${post.upvotes} upvotes | ${post.date}
           </small>
         </div>`
-      ).join('')}
+        )
+        .join("")}
     </div>
   </body>
 </html>`;
   res.send(html);
 });
 
-app.get('/posts/:id', (req, res) =>{
+app.get("/posts/:id", (req, res) => {
   const id = req.params.id;
-  const post = postBank.find(id)
-  const posts = postBank.list()
-  const html = 
-  `<!DOCTYPE html>
-  <html>
+  const post = postBank.find(id);
+  const posts = postBank.list();
+  if (!post.id) {
+    res.status(404);
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Wizard News</title>
+      <link rel="stylesheet" href="/style.css" />
+    </head>
+    <body>
+      <header><img src="/logo.png"/>Wizard News</header>
+      <div class="not-found">
+        <p>Accio Page! 🧙‍♀️ ... Page Not Found</p>
+        <img src="/dumbledore-404.gif" />
+      </div>
+    </body>
+    </html>`;
+    res.send(html);
+  } else {
+    const html = `<!DOCTYPE html>
+    <html>
   <head>
     <title>Wizard News</title>
     <link rel="stylesheet" href="/style.css" />
@@ -49,23 +71,17 @@ app.get('/posts/:id', (req, res) =>{
   <body>
     <div class="news-list">
       <header><img src="/logo.png"/>Wizard News</header>
-      ${posts.map(post => `
-        <div class='news-item'>
-          <p>
-            <span class="news-position">${post.id}. ▲</span>${post.title}
-            <small>(by ${post.name})</small>
-          </p>
-          <small class="news-info">
-            ${post.upvotes} upvotes | ${post.date}
-          </small>
-        </div>`
-      ).join('')}
+    <div>${post.title}</div>
+    <div>${post.name}</div>
+    <div>${post.date}</div>
+    <div>${post.content}</div>
     </div>
   </body>
 </html>
-  `
-  res.send(html);
-})
+  `;
+    res.send(html);
+  }
+});
 
 const PORT = 1337;
 
