@@ -1,6 +1,12 @@
 const express = require("express");
 const morgan = require("morgan");
 const postBank = require("./postBank");
+const time = require('node-time-ago');
+// const html = require('html-template-tag');
+// const postList = require('./views/postList');
+// const postDetails = require('./views/postDetails')
+
+
 const app = express();
 
 app.use(express.static("public"));
@@ -8,7 +14,6 @@ app.use(morgan("dev"));
 
 app.get("/", (req, res) => {
   const posts = postBank.list();
-
   const html = `<!DOCTYPE html>
   <html>
   <head>
@@ -28,7 +33,7 @@ app.get("/", (req, res) => {
             <small>(by ${post.name})</small>
           </p>
           <small class="news-info">
-            ${post.upvotes} upvotes | ${post.date}
+            ${post.upvotes} upvotes | ${time(post.date)}
           </small>
         </div>`
         )
@@ -36,13 +41,12 @@ app.get("/", (req, res) => {
     </div>
   </body>
 </html>`;
-  res.send(html);
+res.send(html);
 });
 
 app.get("/posts/:id", (req, res) => {
   const id = req.params.id;
   const post = postBank.find(id);
-  const posts = postBank.list();
   if (!post.id) {
     res.status(404);
     const html = `
@@ -73,7 +77,7 @@ app.get("/posts/:id", (req, res) => {
       <header><img src="/logo.png"/>Wizard News</header>
     <div>${post.title}</div>
     <div>${post.name}</div>
-    <div>${post.date}</div>
+    <div>${time(post.date)}</div>
     <div>${post.content}</div>
     </div>
   </body>
